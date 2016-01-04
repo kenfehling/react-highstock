@@ -1,17 +1,22 @@
+var ReactFauxDOM = require('react-faux-dom');
 var Highstock = require('highstock-release');
 var React = require('react');
 var update = require('react-addons-update');
 
-module.exports = React.createClass({
-  displayName: 'Highstock',
+class ReactHighstock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.renderChart = this.renderChart.bind(this);
+    this.getChart = this.getChart.bind(this);
+  }
 
-  renderChart: function() {
+  renderChart() {
     if (!this.props.config) {
       throw new Error('Config has to be specified, for the Highchart component');
     }
 
-    var config = this.props.config;
-    var node = this.refs.chart;
+    let conifg = this.props.config;
+    let node = this.refs.chart;
 
     if (!config.chart) {
       config = update(config, {chart: {$set: {}}});
@@ -20,28 +25,27 @@ module.exports = React.createClass({
     config = update(config, {chart: {renderTo: {$set: node}}});
 
     this.chart = new Highstock.Chart(config);
-  },
+  }
 
-  getChart: function() {
+  getChart() {
     if (!this.chart) {
       throw new Error('getChart() should not be called before the component is mounted');
     }
 
     return this.chart;
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     this.renderChart();
-  },
+  }
 
-  componentDidUpdate: function() {
+  componentDidUpdate() {
     this.renderChart();
-  },
+  }
 
-  render: function() {
+  render() {
     return React.createElement('div', {className: 'chart', ref:'chart'});
-  },
+  }
+}
 
-});
-
-module.exports.Highstock = Highstock;
+export default ReactHighstock;
