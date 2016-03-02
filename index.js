@@ -5,24 +5,37 @@ var update = require('react-addons-update');
 module.exports = React.createClass({
   displayName: 'Highstock',
 
-  renderChart: function() {
-    if (!this.props.config) {
+  propTypes: {
+    config: React.PropTypes.object.isRequired,
+    isPureConfig: React.PropTypes.bool,
+  },
+
+  renderChart: function (config) {
+    if (!config) {
       throw new Error('Config has to be specified, for the Highchart component');
     }
 
-    var config = this.props.config;
     var node = this.refs.chart;
 
     if (!config.chart) {
-      config = update(config, {chart: {$set: {}}});
+      config = update(config, { chart: { $set: {} } });
     }
 
-    config = update(config, {chart: {renderTo: {$set: node}}});
+    config = update(config, { chart: { renderTo: { $set: node } } });
 
     this.chart = new Highstock.Chart(config);
   },
 
-  getChart: function() {
+  shouldComponentUpdate: function (newProps) {
+    if (!this.props.isPureConfig || this.props.config !== newProps.config) {
+      this.renderChart(newProps.config);
+      return true;
+    }
+
+    return false;
+  },
+
+  getChart: function () {
     if (!this.chart) {
       throw new Error('getChart() should not be called before the component is mounted');
     }
@@ -30,18 +43,14 @@ module.exports = React.createClass({
     return this.chart;
   },
 
-  componentDidMount: function() {
-    this.renderChart();
+  componentDidMount: function () {
+    this.renderChart(this.props.config);
   },
 
-  componentDidUpdate: function() {
-    this.renderChart();
-  },
-
-  render: function() {
-    return React.createElement('div', {className: 'chart', ref:'chart'});
+  render: function () {
+    return React.createElement('div', { className: 'chart', ref:'chart' });
   },
 
 });
 
-module.exports.Highstock = Highstock;
+exports.Highstock = Highstock;
